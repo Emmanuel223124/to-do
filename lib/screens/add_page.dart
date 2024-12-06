@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
 
 class AddTodoPage extends StatefulWidget {
-  const AddTodoPage({super.key});
+  final Map? todo;
+  const AddTodoPage({super.key,
+  this.todo,
+  });
 
   @override
   State<AddTodoPage> createState() => _AddTodoPageState();
@@ -13,11 +16,29 @@ class AddTodoPage extends StatefulWidget {
 class _AddTodoPageState extends State<AddTodoPage> {
   TextEditingController titlecontroller = TextEditingController();
   TextEditingController descriptioncontroller = TextEditingController();
+  bool isEdit = false;
+  @override
+  void initState() {
+    
+    super.initState();
+    final todo = widget.todo;
+    if( todo !=null) {
+    isEdit = true;  
+    final title = todo ['title'];
+    final description = todo['description'];
+    titlecontroller.text =title;
+    descriptioncontroller.text = description;
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Todo"),
+        title: Text(
+          isEdit ? 'Edit Todo': 'Add Todo'),
       ),
       body: ListView(
         padding: EdgeInsets.all(20),
@@ -40,16 +61,31 @@ class _AddTodoPageState extends State<AddTodoPage> {
             height: 20,
           ),
           ElevatedButton(
-            onPressed: () {
-              submitData();
-              print("hello");
-            },
-            child: Text("submit"),
+            onPressed: isEdit? updateData:submitData,
+              
+            
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                isEdit? 'Update' : "submit"),
+            ),
           )
         ],
       ),
     );
   }
+
+Future<void> updateData() async {
+   final title = titlecontroller.text;
+    final description = descriptioncontroller.text;
+    final body = {
+      "title": title,
+      "description": description,
+      "is_completed": false
+};
+
+
+
 
   Future<void> submitData() async {
     final title = titlecontroller.text;
@@ -91,4 +127,5 @@ showSuccessMessage("creation success");
     backgroundColor: Colors.red,);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+}
 }
