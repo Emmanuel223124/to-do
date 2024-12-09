@@ -61,7 +61,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
             height: 20,
           ),
           ElevatedButton(
-            onPressed: isEdit? updateData:submitData,
+            onPressed: isEdit? updateData: submitData,
               
             
             child: Padding(
@@ -76,6 +76,13 @@ class _AddTodoPageState extends State<AddTodoPage> {
   }
 
 Future<void> updateData() async {
+    final todo = widget.todo;
+    if (todo == null) {
+      print('you can not update without todo data');
+      return;
+    }
+    final id = todo['_id'];
+
    final title = titlecontroller.text;
     final description = descriptioncontroller.text;
     final body = {
@@ -83,7 +90,25 @@ Future<void> updateData() async {
       "description": description,
       "is_completed": false
 };
+final url = 'https://api.nstack.in/v1/todos/$id';
+    final uri = Uri.parse(url);
+    final response = await http.put(
+      uri,
+      body: jsonEncode(body),
+      headers: {
+        "Content-Type": "application/json"   
+           }
+    );
+      if (response.statusCode == 201) {
+titlecontroller.text="";
+descriptioncontroller.text ="";
 
+showSuccessMessage("Update success");
+  }else {
+      
+       showErrorMessage("Update Failed");
+      
+    }}
 
 
 
@@ -109,7 +134,7 @@ titlecontroller.text="";
 descriptioncontroller.text ="";
 
 showSuccessMessage("creation success");
-    }else {
+  }else {
       print("Creation Failed");
        showErrorMessage("Creation Failed");
       print(response.body);
@@ -127,5 +152,4 @@ showSuccessMessage("creation success");
     backgroundColor: Colors.red,);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
-}
 }
